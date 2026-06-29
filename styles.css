@@ -515,7 +515,7 @@ select.ms-input { appearance: auto; cursor: pointer; }
 
 /* Territory "available" headline + live blinking dot */
 .territory-headline {
-  color: #5BD24B;
+  color: #fff;
   font-size: clamp(1.7rem, 4.4vw, 2.8rem);
   line-height: 1.2;
   margin-bottom: 12px;

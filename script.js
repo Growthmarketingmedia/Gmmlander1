@@ -15,7 +15,7 @@ var CONFIG = {
   // Submissions dashboard endpoint (receives every lead).
   DASHBOARD_URL:   "https://submissions-lovat.vercel.app/api/submit",
   DASHBOARD_WEBSITE_NAME: "Marketing-funnel",
-  DASHBOARD_WEBSITE_URL:  "gmm-lead-funnel.vercel.app"
+  DASHBOARD_WEBSITE_URL:  "rankangel.growthmarketingco.com"
 };
 
 function currentVariant() {
