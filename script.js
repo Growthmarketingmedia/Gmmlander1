@@ -212,7 +212,7 @@ function initCalendar() {
   }
 
   var note = document.getElementById('zip-note');
-  if (note && zip) note.textContent = 'Checking availability for zip ' + zip + '.';
+  if (note && zip) note.textContent = 'Your Territory for ' + zip + ' is available — claim it before it’s gone!';
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -105,11 +105,10 @@ img { max-width: 100%; display: block; }
   background: #fff;
   border: 1px solid #E4E4DE;
   border-radius: 14px;
-  overflow: hidden;
   box-shadow: 0 14px 40px rgba(0,0,0,0.12);
   text-align: left;
 }
-.ms-bar { height: 5px; background: #ECECE6; }
+.ms-bar { height: 5px; background: #ECECE6; overflow: hidden; border-radius: 13px 13px 0 0; }
 .ms-bar > i { display: block; height: 100%; width: 20%; background: var(--cta); transition: width 0.3s ease; }
 .ms-body { padding: 26px 26px 22px; }
 .ms-step label {
@@ -200,6 +199,8 @@ select.ms-input { appearance: auto; cursor: pointer; }
   display: flex;
   align-items: stretch;
   background: var(--cta);
+  overflow: hidden;
+  border-radius: 0 0 13px 13px;
 }
 .ms-nav button {
   background: transparent;
