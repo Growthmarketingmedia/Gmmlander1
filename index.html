@@ -38,11 +38,62 @@
           </div>
         </div>
       </div>
-      <form class="zip-form" novalidate>
-        <label>Enter Your Zip Code To See If Your Area Is Available</label>
-        <input class="zip-input" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" autocomplete="postal-code" />
-        <button type="submit" class="btn btn-cta">See If You Qualify &rarr;</button>
-        <div class="zip-error"></div>
+      <form class="multistep" novalidate>
+        <div class="ms-bar"><i></i></div>
+        <div class="ms-body">
+          <!-- Step 1: Zip -->
+          <div class="ms-step">
+            <label>Enter Your Zip Code To See If Your Area Is Available <span class="req">*</span></label>
+            <input class="ms-input" name="zip" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" autocomplete="postal-code" />
+          </div>
+          <!-- Step 2: Problem -->
+          <div class="ms-step" hidden>
+            <label>Which problem is limiting your revenue growth? <span class="req">*</span></label>
+            <select class="ms-input" name="problem">
+              <option value="" disabled selected>Select one&hellip;</option>
+              <option>SEO is weak</option>
+              <option>Ads aren&rsquo;t working or too expensive</option>
+              <option>I have never marketed before</option>
+              <option>Insurance is unreliable</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <!-- Step 3: Jobs / month -->
+          <div class="ms-step" hidden>
+            <label>How many jobs are you doing on average each month? <span class="req">*</span></label>
+            <input class="ms-input" name="jobs_per_month" type="number" min="0" placeholder="e.g. 10" />
+          </div>
+          <!-- Step 4: Revenue -->
+          <div class="ms-step" hidden>
+            <label>What is your total annual revenue <span class="req">*</span></label>
+            <select class="ms-input" name="revenue">
+              <option value="" disabled selected>Select one&hellip;</option>
+              <option>$0-$1000/mo</option>
+              <option>$1000-$2500/mo</option>
+              <option>$2500-$5000</option>
+              <option>$5000-$10,000/mo</option>
+              <option>$10K/mo plus</option>
+            </select>
+          </div>
+          <!-- Step 5: Contact -->
+          <div class="ms-step" hidden>
+            <label class="ms-label-top">Full Name <span class="req">*</span></label>
+            <input class="ms-input" name="name" type="text" placeholder="Full Name" autocomplete="name" />
+            <label class="ms-label-top">Name Of Your Company <span class="req">*</span></label>
+            <input class="ms-input" name="company" type="text" placeholder="e.g. Steve&rsquo;s Roofing" autocomplete="organization" />
+            <label class="ms-label-top">Phone <span class="req">*</span></label>
+            <input class="ms-input" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+            <label class="ms-label-top">Email <span class="req">*</span></label>
+            <input class="ms-input" name="email" type="email" placeholder="Email" autocomplete="email" />
+            <label class="ms-check"><input name="terms" type="checkbox" /> <span>I agree to <a href="#" target="_blank" rel="noopener">terms &amp; conditions</a> provided by the company. By providing my phone number, I agree to receive text messages from the business.</span></label>
+          </div>
+          <div class="ms-error" aria-live="polite"></div>
+        </div>
+        <div class="ms-nav">
+          <button type="button" class="ms-prev" hidden>&larr; Prev</button>
+          <button type="button" class="ms-next">Next &rarr;</button>
+          <button type="submit" class="ms-submit" hidden>Submit</button>
+        </div>
       </form>
       <p class="trust-line">Trusted by roofing, restoration, HVAC &amp; a dozen other home services.</p>
       <span class="google-badge">
@@ -160,12 +211,7 @@
   <section class="section section-dark cta-block">
     <div class="container">
       <h2>See If Your Territory Is Still Open</h2>
-      <form class="zip-form" novalidate>
-        <label>Enter Your Zip Code To See If Your Area Is Available</label>
-        <input class="zip-input" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" autocomplete="postal-code" />
-        <button type="submit" class="btn btn-cta">Check Your Zip Code &rarr;</button>
-        <div class="zip-error"></div>
-      </form>
+      <button class="btn btn-lg btn-cta" data-scroll-to-form>Check Your Zip Code &rarr;</button>
       <p class="cta-micro">Free. No obligation. Takes 30 seconds.</p>
     </div>
   </section>

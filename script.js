@@ -1,72 +1,140 @@
 /* ==========================================================================
    GMM Lead-Gen Funnel — shared JS
-   - Inline zip-code forms (no popup)
-   - Webhook on zip submit -> GHL pipeline (placeholder URL)
-   - Passes the zip forward to the calendar page (?zip=) and on into GHL
+   - Multi-step inline lead form (zip -> qualifying questions -> contact)
+   - Webhook on submit -> GHL pipeline (placeholder URL)
+   - Passes the full lead (incl. zip) forward to the calendar page
    Variant is determined by which landing PAGE is loaded (body[data-variant]).
    ========================================================================== */
 
 // ----- CONFIG: fill these in once provided -----
 var CONFIG = {
-  // GHL inbound webhook for zip submissions. Leave null until Sage provides it.
-  ZIP_WEBHOOK_URL: null,        // e.g. "https://services.leadconnectorhq.com/hooks/.../webhook-trigger/..."
-  CALENDAR_PAGE:  "calendar.html",
-  CONFIRM_PAGE:   "confirmation.html"
+  // GHL inbound webhook that receives the whole lead. Leave null until provided.
+  LEAD_WEBHOOK_URL: null,        // e.g. "https://services.leadconnectorhq.com/hooks/.../webhook-trigger/..."
+  CALENDAR_PAGE:   "calendar.html",
+  CONFIRM_PAGE:    "confirmation.html"
 };
 
 function currentVariant() {
   return document.body.getAttribute('data-variant') || '';
 }
 
-/* ---------- Inline zip forms ---------- */
-function initZipForms() {
-  var forms = document.querySelectorAll('.zip-form');
-  forms.forEach(function (form) {
-    var input = form.querySelector('.zip-input');
-    var error = form.querySelector('.zip-error');
+/* ---------- Multi-step lead form ---------- */
+function initMultiStep() {
+  var form = document.querySelector('.multistep');
+  if (!form) return;
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var zip = (input.value || '').trim();
-      if (!/^\d{5}$/.test(zip)) {
-        if (error) error.textContent = 'Please enter a valid 5-digit zip code';
-        input.focus();
-        return;
+  var steps     = Array.prototype.slice.call(form.querySelectorAll('.ms-step'));
+  var prevBtn   = form.querySelector('.ms-prev');
+  var nextBtn   = form.querySelector('.ms-next');
+  var submitBtn = form.querySelector('.ms-submit');
+  var errorEl   = form.querySelector('.ms-error');
+  var bar       = form.querySelector('.ms-bar > i');
+  var total     = steps.length;
+  var cur       = 0;
+
+  function render() {
+    steps.forEach(function (s, i) { s.hidden = (i !== cur); });
+    if (prevBtn)   prevBtn.hidden = (cur === 0);
+    var last = (cur === total - 1);
+    if (nextBtn)   nextBtn.hidden = last;
+    if (submitBtn) submitBtn.hidden = !last;
+    if (bar) bar.style.width = Math.round(((cur + 1) / total) * 100) + '%';
+    if (errorEl) errorEl.textContent = '';
+    var first = steps[cur].querySelector('input, select');
+    if (first) setTimeout(function () { first.focus(); }, 40);
+  }
+
+  function validateStep(i) {
+    var fields = steps[i].querySelectorAll('input, select');
+    for (var k = 0; k < fields.length; k++) {
+      var f = fields[k];
+      if (f.type === 'checkbox') {
+        if (!f.checked) return 'Please agree to the terms to continue.';
+        continue;
       }
-      if (error) error.textContent = '';
-      submitZip(zip);
-    });
+      var v = (f.value || '').trim();
+      if (!v) return 'Please complete this field to continue.';
+      if (f.name === 'zip' && !/^\d{5}$/.test(v)) return 'Please enter a valid 5-digit zip code.';
+      if (f.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return 'Please enter a valid email address.';
+    }
+    return '';
+  }
+
+  function next() {
+    var err = validateStep(cur);
+    if (err) { errorEl.textContent = err; return; }
+    if (cur < total - 1) { cur++; render(); }
+  }
+  function prev() { if (cur > 0) { cur--; render(); } }
+
+  if (nextBtn) nextBtn.addEventListener('click', next);
+  if (prevBtn) prevBtn.addEventListener('click', prev);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = validateStep(cur);
+    if (err) { errorEl.textContent = err; return; }
+    submitLead(form);
   });
+
+  // Enter advances (or submits on the last step).
+  form.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      if (cur < total - 1) { next(); } else { submitLead(form); }
+    }
+  });
+
+  render();
 }
 
-/* ---------- Submit zip -> webhook -> navigate (carrying the zip) ---------- */
-function submitZip(zip) {
-  var variant = currentVariant();
+/* ---------- Submit the full lead -> webhook -> calendar ---------- */
+function submitLead(form) {
+  var data = {};
+  Array.prototype.forEach.call(form.querySelectorAll('input, select'), function (f) {
+    if (!f.name) return;
+    data[f.name] = (f.type === 'checkbox') ? f.checked : (f.value || '').trim();
+  });
+  data.variant = currentVariant();
+  data.source = 'lead-funnel';
 
-  // Track conversion intent.
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event: 'zip_submit', zip: zip, variant: variant });
+  window.dataLayer.push({ event: 'lead_submit', variant: data.variant, zip: data.zip });
 
-  // Persist for the booking/confirmation pages.
-  try { sessionStorage.setItem('lead_zip', zip); } catch (err) {}
+  try {
+    sessionStorage.setItem('lead_data', JSON.stringify(data));
+    sessionStorage.setItem('lead_zip', data.zip || '');
+  } catch (err) {}
 
-  // Carry the zip to the calendar page via the URL.
-  function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(zip); }
+  function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(data.zip || ''); }
 
-  // Fire the GHL webhook if configured; never block navigation on it.
-  if (CONFIG.ZIP_WEBHOOK_URL) {
+  if (CONFIG.LEAD_WEBHOOK_URL) {
     try {
-      fetch(CONFIG.ZIP_WEBHOOK_URL, {
+      fetch(CONFIG.LEAD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zip: zip, variant: variant, source: 'lead-funnel' }),
+        body: JSON.stringify(data),
         keepalive: true
       }).catch(function () {});
     } catch (err) {}
-    setTimeout(go, 350);
+    setTimeout(go, 400);
   } else {
     go();
   }
+}
+
+/* ---------- Bottom CTA buttons just scroll up to the form ---------- */
+function initScrollButtons() {
+  document.querySelectorAll('[data-scroll-to-form]').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      var f = document.querySelector('.multistep');
+      if (!f) return;
+      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var inp = f.querySelector('input, select');
+      if (inp) setTimeout(function () { inp.focus(); }, 450);
+    });
+  });
 }
 
 /* ---------- Calendar page: receive the zip and pass it into the GHL embed ---------- */
@@ -79,14 +147,11 @@ function initCalendarZip() {
   try { if (!zip) zip = sessionStorage.getItem('lead_zip') || ''; } catch (err) {}
   if (!zip) return;
 
-  // Append the zip to the GHL booking iframe URL so it travels with the booking.
-  // (GHL prefills a custom field if its query key matches — adjust the key if needed.)
   var src = iframe.getAttribute('src');
   if (src && src.indexOf('zip=') === -1) {
     iframe.setAttribute('src', src + (src.indexOf('?') === -1 ? '?' : '&') + 'zip=' + encodeURIComponent(zip));
   }
 
-  // Optional: show which zip is being checked.
   var note = document.getElementById('zip-note');
   if (note) note.textContent = 'Checking availability for zip ' + zip + '.';
 }
@@ -94,6 +159,7 @@ function initCalendarZip() {
 document.addEventListener('DOMContentLoaded', function () {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'landing_view', variant: currentVariant() });
-  initZipForms();
+  initMultiStep();
+  initScrollButtons();
   initCalendarZip();
 });
