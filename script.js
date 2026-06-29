@@ -32,6 +32,8 @@ function initMultiStep() {
   var total     = steps.length;
   var cur       = 0;
 
+  initDropdowns(form);
+
   function render() {
     steps.forEach(function (s, i) { s.hidden = (i !== cur); });
     if (prevBtn)   prevBtn.hidden = (cur === 0);
@@ -40,7 +42,7 @@ function initMultiStep() {
     if (submitBtn) submitBtn.hidden = !last;
     if (bar) bar.style.width = Math.round(((cur + 1) / total) * 100) + '%';
     if (errorEl) errorEl.textContent = '';
-    var first = steps[cur].querySelector('input, select');
+    var first = steps[cur].querySelector('input:not([type=hidden]), select, .ms-dd-toggle');
     if (first) setTimeout(function () { first.focus(); }, 40);
   }
 
@@ -86,6 +88,47 @@ function initMultiStep() {
   });
 
   render();
+}
+
+/* ---------- Custom dropdowns (stay inside the card) ---------- */
+function initDropdowns(form) {
+  var dropdowns = form.querySelectorAll('.ms-dropdown');
+  dropdowns.forEach(function (dd) {
+    var toggle = dd.querySelector('.ms-dd-toggle');
+    var list   = dd.querySelector('.ms-dd-list');
+    var label  = dd.querySelector('.ms-dd-label');
+    var hidden = dd.querySelector('input[type=hidden]');
+    if (!label.textContent.trim() || hidden.value === '') label.classList.add('placeholder');
+
+    function close() { dd.classList.remove('open'); list.hidden = true; }
+
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var willOpen = !dd.classList.contains('open');
+      // close any other open dropdowns in this form
+      form.querySelectorAll('.ms-dropdown.open').forEach(function (o) {
+        o.classList.remove('open'); o.querySelector('.ms-dd-list').hidden = true;
+      });
+      dd.classList.toggle('open', willOpen);
+      list.hidden = !willOpen;
+    });
+
+    list.querySelectorAll('li').forEach(function (li) {
+      li.addEventListener('click', function () {
+        hidden.value = li.getAttribute('data-value');
+        label.textContent = li.textContent;
+        label.classList.remove('placeholder');
+        close();
+      });
+    });
+  });
+
+  // click outside closes
+  document.addEventListener('click', function (e) {
+    form.querySelectorAll('.ms-dropdown.open').forEach(function (dd) {
+      if (!dd.contains(e.target)) { dd.classList.remove('open'); dd.querySelector('.ms-dd-list').hidden = true; }
+    });
+  });
 }
 
 /* ---------- Submit the full lead -> webhook -> calendar ---------- */
