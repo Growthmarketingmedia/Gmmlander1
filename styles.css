@@ -17,8 +17,8 @@
   --yellow: #FFD43B;
 
   /* CTA + reference (closers.io) styling */
-  --cta: #DB4A33;
-  --cta-hover: #C13E29;
+  --cta: #009444;
+  --cta-hover: #007D39;
   --pill-bg: #FBD9D2;
   --pill-text: #BE3A28;
   --muted-on-dark: #B5B5B5;
@@ -94,7 +94,7 @@ img { max-width: 100%; display: block; }
   font-size: clamp(1.2rem, 3vw, 1.6rem);
   padding: 20px 48px;
   border-radius: 8px;
-  box-shadow: 0 10px 24px rgba(219,74,51,0.28);
+  box-shadow: 0 10px 24px rgba(0,148,68,0.28);
 }
 .btn-cta:hover { background: var(--cta-hover); }
 
