@@ -92,7 +92,7 @@
 
   <script src="script.js"></script>
   <script>
-    // Redirect to the confirmation page when GHL signals a completed booking.
+    // Redirect to the thank-you page when GHL signals a completed booking.
     window.addEventListener('message', function (e) {
       var d = e.data;
       var isBooked =
@@ -101,7 +101,7 @@
       if (isBooked) {
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: 'calendar_booked' });
-        window.location.href = 'confirmation.html';
+        window.location.href = 'thankyou.html';
       }
     });
   </script>

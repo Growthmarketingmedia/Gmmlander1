@@ -10,8 +10,8 @@
 var CONFIG = {
   // GHL inbound webhook that receives the whole lead. Leave null until provided.
   LEAD_WEBHOOK_URL: null,        // e.g. "https://services.leadconnectorhq.com/hooks/.../webhook-trigger/..."
-  CALENDAR_PAGE:   "calendar.html",
-  CONFIRM_PAGE:    "confirmation.html"
+  CALENDAR_PAGE:   "book-now.html",
+  CONFIRM_PAGE:    "thankyou.html"
 };
 
 function currentVariant() {

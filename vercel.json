@@ -1,6 +1,13 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    { "source": "/opt-in", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/calendar", "destination": "/book-now", "permanent": false },
+    { "source": "/confirmation", "destination": "/thankyou", "permanent": false }
+  ],
   "headers": [
     {
       "source": "/(.*)",
