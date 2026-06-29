@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/opt-in", "destination": "/index.html" }
+    { "source": "/opt-in", "destination": "/" }
   ],
   "redirects": [
     { "source": "/calendar", "destination": "/book-now", "permanent": false },
