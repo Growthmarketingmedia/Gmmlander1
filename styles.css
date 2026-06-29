@@ -98,6 +98,47 @@ img { max-width: 100%; display: block; }
 }
 .btn-cta:hover { background: var(--cta-hover); }
 
+/* ---------- Inline zip form (replaces popup) ---------- */
+.zip-form {
+  max-width: 460px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #E4E4DE;
+  border-radius: 14px;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.10);
+  padding: 22px 22px 24px;
+}
+.zip-form label {
+  display: block;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-on-light);
+  margin-bottom: 12px;
+  text-align: center;
+}
+.zip-form .zip-input {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #D6D6CF;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  padding: 15px 16px;
+  margin-bottom: 12px;
+  text-align: center;
+  letter-spacing: 3px;
+  color: var(--text-on-light);
+}
+.zip-form .zip-input::placeholder { letter-spacing: normal; color: #9A9A92; }
+.zip-form .zip-input:focus { outline: none; border-color: var(--cta); box-shadow: 0 0 0 3px rgba(0,148,68,0.15); }
+.zip-form .btn-cta { width: 100%; font-size: 1.2rem; padding: 16px 24px; white-space: nowrap; box-shadow: none; }
+.zip-form .zip-error { color: var(--red); font-size: 0.85rem; min-height: 18px; margin-top: 10px; text-align: center; }
+
+/* dark variant (bottom CTA section) */
+.section-dark .zip-form { background: #111; border-color: var(--border); }
+.section-dark .zip-form label { color: #fff; }
+.section-dark .zip-form .zip-input { background: #0A0A0A; border-color: var(--border); color: #fff; }
+
 /* ---------- Sections ---------- */
 .section { padding: 64px 0; }
 .section-dark { background: var(--bg-dark); color: var(--text-on-dark); }

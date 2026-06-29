@@ -1,10 +1,9 @@
 /* ==========================================================================
    GMM Lead-Gen Funnel — shared JS
-   - Zip-code modal
+   - Inline zip-code forms (no popup)
    - Webhook on zip submit -> GHL pipeline (placeholder URL)
-   - Navigation to calendar page
-   Variant is determined by which landing PAGE is loaded (body[data-variant]),
-   not a random on-load swap.
+   - Passes the zip forward to the calendar page (?zip=) and on into GHL
+   Variant is determined by which landing PAGE is loaded (body[data-variant]).
    ========================================================================== */
 
 // ----- CONFIG: fill these in once provided -----
@@ -19,51 +18,28 @@ function currentVariant() {
   return document.body.getAttribute('data-variant') || '';
 }
 
-/* ---------- Zip modal ---------- */
-function initModal() {
-  var overlay = document.getElementById('zip-modal');
-  if (!overlay) return;
+/* ---------- Inline zip forms ---------- */
+function initZipForms() {
+  var forms = document.querySelectorAll('.zip-form');
+  forms.forEach(function (form) {
+    var input = form.querySelector('.zip-input');
+    var error = form.querySelector('.zip-error');
 
-  var input  = document.getElementById('zip-input');
-  var error  = document.getElementById('zip-error');
-  var form   = document.getElementById('zip-form');
-  var closeBtn = overlay.querySelector('.modal-close');
-
-  function open() {
-    overlay.classList.add('open');
-    if (error) error.textContent = '';
-    setTimeout(function () { if (input) input.focus(); }, 50);
-    document.body.style.overflow = 'hidden';
-  }
-  function close() {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  // Any element with [data-open-zip] opens the modal.
-  document.querySelectorAll('[data-open-zip]').forEach(function (el) {
-    el.addEventListener('click', function (e) { e.preventDefault(); open(); });
-  });
-
-  if (closeBtn) closeBtn.addEventListener('click', close);
-  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-
-  if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var zip = (input.value || '').trim();
       if (!/^\d{5}$/.test(zip)) {
-        error.textContent = 'Please enter a valid zip code';
+        if (error) error.textContent = 'Please enter a valid 5-digit zip code';
+        input.focus();
         return;
       }
-      error.textContent = '';
+      if (error) error.textContent = '';
       submitZip(zip);
     });
-  }
+  });
 }
 
-/* ---------- Submit zip -> webhook -> navigate ---------- */
+/* ---------- Submit zip -> webhook -> navigate (carrying the zip) ---------- */
 function submitZip(zip) {
   var variant = currentVariant();
 
@@ -74,7 +50,8 @@ function submitZip(zip) {
   // Persist for the booking/confirmation pages.
   try { sessionStorage.setItem('lead_zip', zip); } catch (err) {}
 
-  function go() { window.location.href = CONFIG.CALENDAR_PAGE; }
+  // Carry the zip to the calendar page via the URL.
+  function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(zip); }
 
   // Fire the GHL webhook if configured; never block navigation on it.
   if (CONFIG.ZIP_WEBHOOK_URL) {
@@ -92,9 +69,31 @@ function submitZip(zip) {
   }
 }
 
+/* ---------- Calendar page: receive the zip and pass it into the GHL embed ---------- */
+function initCalendarZip() {
+  var iframe = document.querySelector('.calendar-wrap iframe');
+  if (!iframe) return;
+
+  var params = new URLSearchParams(window.location.search);
+  var zip = params.get('zip') || '';
+  try { if (!zip) zip = sessionStorage.getItem('lead_zip') || ''; } catch (err) {}
+  if (!zip) return;
+
+  // Append the zip to the GHL booking iframe URL so it travels with the booking.
+  // (GHL prefills a custom field if its query key matches — adjust the key if needed.)
+  var src = iframe.getAttribute('src');
+  if (src && src.indexOf('zip=') === -1) {
+    iframe.setAttribute('src', src + (src.indexOf('?') === -1 ? '?' : '&') + 'zip=' + encodeURIComponent(zip));
+  }
+
+  // Optional: show which zip is being checked.
+  var note = document.getElementById('zip-note');
+  if (note) note.textContent = 'Checking availability for zip ' + zip + '.';
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  // Report which landing page (variant) was viewed, for GTM/GA4 reporting.
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'landing_view', variant: currentVariant() });
-  initModal();
+  initZipForms();
+  initCalendarZip();
 });

@@ -38,7 +38,12 @@
           </div>
         </div>
       </div>
-      <button class="btn btn-lg btn-cta" data-open-zip>Check Your Zip Code &rarr;</button>
+      <form class="zip-form" novalidate>
+        <label>Enter Your Zip Code To See If Your Area Is Available</label>
+        <input class="zip-input" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" autocomplete="postal-code" />
+        <button type="submit" class="btn btn-cta">Check Your Zip Code &rarr;</button>
+        <div class="zip-error"></div>
+      </form>
       <p class="trust-line">Trusted by roofing, restoration, HVAC &amp; a dozen other home services.</p>
       <span class="google-badge">
         <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
@@ -179,7 +184,12 @@
   <section class="section section-dark cta-block">
     <div class="container">
       <h2>See If Your Territory Is Still Open</h2>
-      <button class="btn btn-lg btn-cta" data-open-zip>Check Your Zip Code &rarr;</button>
+      <form class="zip-form" novalidate>
+        <label>Enter Your Zip Code To See If Your Area Is Available</label>
+        <input class="zip-input" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" autocomplete="postal-code" />
+        <button type="submit" class="btn btn-cta">Check Your Zip Code &rarr;</button>
+        <div class="zip-error"></div>
+      </form>
       <p class="cta-micro">Free. No obligation. Takes 30 seconds.</p>
     </div>
   </section>
@@ -188,20 +198,6 @@
   <footer class="site-footer">
     &copy; Growth Marketing Media. All rights reserved.
   </footer>
-
-  <!-- ================= Zip Modal ================= -->
-  <div class="modal-overlay" id="zip-modal" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Check your zip code">
-      <button class="modal-close" aria-label="Close">&times;</button>
-      <h3>See If You Qualify</h3>
-      <p>Enter your zip code to see if your territory is open.</p>
-      <form id="zip-form" novalidate>
-        <input id="zip-input" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" autocomplete="postal-code" />
-        <div class="modal-error" id="zip-error"></div>
-        <button type="submit" class="btn btn-cta">Check Availability &rarr;</button>
-      </form>
-    </div>
-  </div>
 
   <script src="script.js"></script>
 </body>
