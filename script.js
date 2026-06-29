@@ -1,9 +1,10 @@
 /* ==========================================================================
    GMM Lead-Gen Funnel — shared JS
-   - A/B variant assignment (Page 1)
    - Zip-code modal
    - Webhook on zip submit -> GHL pipeline (placeholder URL)
    - Navigation to calendar page
+   Variant is determined by which landing PAGE is loaded (body[data-variant]),
+   not a random on-load swap.
    ========================================================================== */
 
 // ----- CONFIG: fill these in once provided -----
@@ -14,26 +15,8 @@ var CONFIG = {
   CONFIRM_PAGE:   "confirmation.html"
 };
 
-/* ---------- A/B test (Page 1 hero only) ---------- */
-function initABTest() {
-  var heroA = document.getElementById('hero-a');
-  var heroB = document.getElementById('hero-b');
-  if (!heroA || !heroB) return;
-
-  // Persist the variant so a reload doesn't reshuffle the experience.
-  var variant = sessionStorage.getItem('ab_variant');
-  if (variant !== 'A' && variant !== 'B') {
-    variant = Math.random() < 0.5 ? 'A' : 'B';
-    sessionStorage.setItem('ab_variant', variant);
-  }
-
-  document.body.setAttribute('data-variant', variant);
-  heroA.style.display = variant === 'A' ? 'block' : 'none';
-  heroB.style.display = variant === 'B' ? 'block' : 'none';
-
-  // Report variant to GTM/GA4 as a custom dimension.
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event: 'ab_variant', variant: variant });
+function currentVariant() {
+  return document.body.getAttribute('data-variant') || '';
 }
 
 /* ---------- Zip modal ---------- */
@@ -82,7 +65,7 @@ function initModal() {
 
 /* ---------- Submit zip -> webhook -> navigate ---------- */
 function submitZip(zip) {
-  var variant = sessionStorage.getItem('ab_variant') || '';
+  var variant = currentVariant();
 
   // Track conversion intent.
   window.dataLayer = window.dataLayer || [];
@@ -103,7 +86,6 @@ function submitZip(zip) {
         keepalive: true
       }).catch(function () {});
     } catch (err) {}
-    // Give the request a beat, then navigate regardless.
     setTimeout(go, 350);
   } else {
     go();
@@ -111,6 +93,8 @@ function submitZip(zip) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  initABTest();
+  // Report which landing page (variant) was viewed, for GTM/GA4 reporting.
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: 'landing_view', variant: currentVariant() });
   initModal();
 });
