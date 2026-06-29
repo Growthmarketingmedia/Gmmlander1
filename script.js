@@ -10,6 +10,8 @@
 var CONFIG = {
   // GHL inbound webhook that receives the whole lead. Leave null until provided.
   LEAD_WEBHOOK_URL: null,        // e.g. "https://services.leadconnectorhq.com/hooks/.../webhook-trigger/..."
+  // Google Apps Script web-app URL that appends each submission to a Google Sheet.
+  SHEET_WEBHOOK_URL: null,       // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
   CALENDAR_PAGE:   "book-now.html",
   CONFIRM_PAGE:    "thankyou.html"
 };
@@ -201,6 +203,9 @@ function submitLead(form) {
 
   function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(data.zip || ''); }
 
+  var pending = false;
+
+  // GHL inbound webhook (full lead -> pipeline)
   if (CONFIG.LEAD_WEBHOOK_URL) {
     try {
       fetch(CONFIG.LEAD_WEBHOOK_URL, {
@@ -210,10 +215,22 @@ function submitLead(form) {
         keepalive: true
       }).catch(function () {});
     } catch (err) {}
-    setTimeout(go, 400);
-  } else {
-    go();
+    pending = true;
   }
+
+  // Google Sheet (Apps Script web app). text/plain body avoids a CORS preflight.
+  if (CONFIG.SHEET_WEBHOOK_URL) {
+    try {
+      fetch(CONFIG.SHEET_WEBHOOK_URL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        keepalive: true
+      }).catch(function () {});
+    } catch (err) {}
+    pending = true;
+  }
+
+  if (pending) setTimeout(go, 400); else go();
 }
 
 /* ---------- Bottom CTA buttons just scroll up to the form ---------- */
