@@ -11,7 +11,11 @@ var CONFIG = {
   // Webhook that receives the whole lead (GHL pipeline, or a Supabase endpoint later).
   LEAD_WEBHOOK_URL: null,        // e.g. "https://services.leadconnectorhq.com/hooks/.../webhook-trigger/..."
   CALENDAR_PAGE:   "book-now.html",
-  CONFIRM_PAGE:    "thankyou.html"
+  CONFIRM_PAGE:    "thankyou.html",
+  // Submissions dashboard endpoint (receives every lead).
+  DASHBOARD_URL:   "https://submissions-lovat.vercel.app/api/submit",
+  DASHBOARD_WEBSITE_NAME: "Marketing-funnel",
+  DASHBOARD_WEBSITE_URL:  "gmm-lead-funnel.vercel.app"
 };
 
 function currentVariant() {
@@ -202,6 +206,23 @@ function submitLead(form) {
   function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(data.zip || ''); }
 
   var pending = false;
+
+  // Submissions dashboard (full lead -> dashboard backend)
+  if (CONFIG.DASHBOARD_URL) {
+    try {
+      fetch(CONFIG.DASHBOARD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          websiteName: CONFIG.DASHBOARD_WEBSITE_NAME,
+          websiteUrl: CONFIG.DASHBOARD_WEBSITE_URL,
+          formData: data
+        }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (err) {}
+    pending = true;
+  }
 
   // GHL inbound webhook (full lead -> pipeline)
   if (CONFIG.LEAD_WEBHOOK_URL) {
