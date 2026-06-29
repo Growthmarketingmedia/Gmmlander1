@@ -18,6 +18,46 @@ function currentVariant() {
   return document.body.getAttribute('data-variant') || '';
 }
 
+/* ---------- Persist form progress across refresh ---------- */
+function formStateKey() { return 'lead_form_state_' + (currentVariant() || 'x'); }
+
+function saveState(form, step) {
+  var values = {};
+  form.querySelectorAll('input, select').forEach(function (f) {
+    if (!f.name) return;
+    values[f.name] = (f.type === 'checkbox') ? f.checked : f.value;
+  });
+  try { sessionStorage.setItem(formStateKey(), JSON.stringify({ step: step, values: values })); } catch (e) {}
+}
+
+function restoreState(form) {
+  var raw = null;
+  try { raw = sessionStorage.getItem(formStateKey()); } catch (e) {}
+  if (!raw) return 0;
+  var saved;
+  try { saved = JSON.parse(raw); } catch (e) { return 0; }
+  if (!saved || !saved.values) return 0;
+
+  form.querySelectorAll('input, select').forEach(function (f) {
+    if (!f.name || !(f.name in saved.values)) return;
+    if (f.type === 'checkbox') { f.checked = !!saved.values[f.name]; }
+    else { f.value = saved.values[f.name]; }
+  });
+  // restore custom-dropdown labels from their hidden values
+  form.querySelectorAll('.ms-dropdown').forEach(function (dd) {
+    var hidden = dd.querySelector('input[type=hidden]');
+    var label = dd.querySelector('.ms-dd-label');
+    if (!hidden || !hidden.value || !label) return;
+    dd.querySelectorAll('li').forEach(function (li) {
+      if (li.getAttribute('data-value') === hidden.value) {
+        label.textContent = li.textContent;
+        label.classList.remove('placeholder');
+      }
+    });
+  });
+  return (typeof saved.step === 'number') ? saved.step : 0;
+}
+
 /* ---------- Multi-step lead form ---------- */
 function initMultiStep() {
   var form = document.querySelector('.multistep');
@@ -65,9 +105,9 @@ function initMultiStep() {
   function next() {
     var err = validateStep(cur);
     if (err) { errorEl.textContent = err; return; }
-    if (cur < total - 1) { cur++; render(); }
+    if (cur < total - 1) { cur++; render(); saveState(form, cur); }
   }
-  function prev() { if (cur > 0) { cur--; render(); } }
+  function prev() { if (cur > 0) { cur--; render(); saveState(form, cur); } }
 
   if (nextBtn) nextBtn.addEventListener('click', next);
   if (prevBtn) prevBtn.addEventListener('click', prev);
@@ -87,6 +127,14 @@ function initMultiStep() {
     }
   });
 
+  // Save as the user types/selects so a refresh doesn't lose anything.
+  function persist() { saveState(form, cur); }
+  form.addEventListener('input', persist);
+  form.addEventListener('change', persist);
+
+  // Restore any saved progress, then render that step.
+  var restored = restoreState(form);
+  cur = Math.min(Math.max(restored, 0), total - 1);
   render();
 }
 
@@ -118,6 +166,7 @@ function initDropdowns(form) {
         hidden.value = li.getAttribute('data-value');
         label.textContent = li.textContent;
         label.classList.remove('placeholder');
+        hidden.dispatchEvent(new Event('input', { bubbles: true }));
         close();
       });
     });
@@ -147,6 +196,7 @@ function submitLead(form) {
   try {
     sessionStorage.setItem('lead_data', JSON.stringify(data));
     sessionStorage.setItem('lead_zip', data.zip || '');
+    sessionStorage.removeItem(formStateKey());
   } catch (err) {}
 
   function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(data.zip || ''); }
