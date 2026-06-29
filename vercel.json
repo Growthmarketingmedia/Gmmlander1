@@ -2,8 +2,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/optin", "destination": "/index.html" },
-    { "source": "/opt-in", "destination": "/index.html" }
+    { "source": "/optin", "destination": "/" },
+    { "source": "/opt-in", "destination": "/" }
   ],
   "redirects": [
     { "source": "/", "destination": "/optin", "permanent": false },
