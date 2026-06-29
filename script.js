@@ -249,6 +249,7 @@ function initCalendar() {
     qs.set('first_name', parts.shift());
     if (parts.length) qs.set('last_name', parts.join(' '));
     qs.set('name', name);
+    qs.set('full_name', name); // booking form uses a single "Full Name" field
   }
   if (lead.email) qs.set('email', lead.email);
   if (lead.phone) qs.set('phone', lead.phone);
