@@ -77,7 +77,7 @@
         }
         if (lead.email)   qs.set('email', lead.email);
         if (lead.phone)   qs.set('phone', lead.phone);
-        if (lead.company) qs.set('company_name', lead.company);
+        if (lead.company) qs.set('organization', lead.company); // booking form field name="organization"
         if (zip)          qs.set('zip', zip);
         document.getElementById('9WIdxZKft7481V1mX5uz_1782743879826').src =
           base + (qs.toString() ? ('?' + qs.toString()) : '');
