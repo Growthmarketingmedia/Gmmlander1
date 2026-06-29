@@ -515,19 +515,16 @@ select.ms-input { appearance: auto; cursor: pointer; }
 
 /* Territory "available" headline + live blinking dot */
 .territory-headline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
   color: #5BD24B;
   font-size: clamp(1.7rem, 4.4vw, 2.8rem);
   line-height: 1.2;
   margin-bottom: 12px;
 }
 .blink-dot {
-  width: 16px; height: 16px;
-  flex: 0 0 auto;
+  display: inline-block;
+  width: 15px; height: 15px;
+  vertical-align: middle;
+  margin-left: 14px;
   border-radius: 50%;
   background: #2ECC40;
   box-shadow: 0 0 8px 1px rgba(46,204,64,0.9);
