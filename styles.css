@@ -561,6 +561,19 @@ select.ms-input { appearance: auto; cursor: pointer; }
   font-size: 0.82rem;
   border-top: 1px solid var(--border);
 }
+.footer-links {
+  margin-top: 8px;
+}
+.footer-links a {
+  color: var(--muted-on-dark);
+  text-decoration: underline;
+}
+.footer-links a:hover {
+  color: #fff;
+}
+.footer-links .sep {
+  margin: 0 8px;
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 820px) {
