@@ -8,10 +8,8 @@
 
 // ----- CONFIG: fill these in once provided -----
 var CONFIG = {
-  // GHL inbound webhook that receives the whole lead. Leave null until provided.
+  // Webhook that receives the whole lead (GHL pipeline, or a Supabase endpoint later).
   LEAD_WEBHOOK_URL: null,        // e.g. "https://services.leadconnectorhq.com/hooks/.../webhook-trigger/..."
-  // Google Apps Script web-app URL that appends each submission to a Google Sheet.
-  SHEET_WEBHOOK_URL: null,       // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
   CALENDAR_PAGE:   "book-now.html",
   CONFIRM_PAGE:    "thankyou.html"
 };
@@ -211,18 +209,6 @@ function submitLead(form) {
       fetch(CONFIG.LEAD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        keepalive: true
-      }).catch(function () {});
-    } catch (err) {}
-    pending = true;
-  }
-
-  // Google Sheet (Apps Script web app). text/plain body avoids a CORS preflight.
-  if (CONFIG.SHEET_WEBHOOK_URL) {
-    try {
-      fetch(CONFIG.SHEET_WEBHOOK_URL, {
-        method: 'POST',
         body: JSON.stringify(data),
         keepalive: true
       }).catch(function () {});
