@@ -252,9 +252,10 @@ function initCalendar() {
   }
   if (lead.email) qs.set('email', lead.email);
   if (lead.phone) qs.set('phone', lead.phone);
+  if (lead.company) qs.set('company_name', lead.company); // GHL standard "Company Name" field
   if (zip) qs.set('zip', zip);
-  // NOTE: "name of your business" is a GHL custom field — to prefill it we need its
-  // query key from GHL. Once provided: qs.set('<custom_field_key>', lead.company);
+  // If "name of your business" is a GHL CUSTOM field (not the standard Company Name),
+  // swap the key above for its custom key, e.g. qs.set('<custom_field_key>', lead.company);
 
   var src = iframe.getAttribute('src');
   if (src && qs.toString() && src.indexOf('email=') === -1 && src.indexOf('first_name=') === -1) {
