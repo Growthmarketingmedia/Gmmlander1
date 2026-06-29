@@ -230,41 +230,16 @@ function initScrollButtons() {
   });
 }
 
-/* ---------- Calendar page: prefill the GHL booking form from the lead we collected ----------
-   So the visitor doesn't re-type name / phone / email on the GHL calendar step. */
+/* ---------- Calendar page: show the territory message ----------
+   The GHL booking iframe is prefilled inline on calendar.html (before the widget
+   loads) so name/company/phone/email/zip populate on first render. */
 function initCalendar() {
-  var iframe = document.querySelector('.calendar-wrap iframe');
-  if (!iframe) return;
-
-  var lead = {};
-  try { lead = JSON.parse(sessionStorage.getItem('lead_data') || '{}') || {}; } catch (err) {}
-  var params = new URLSearchParams(window.location.search);
-  var zip = params.get('zip') || lead.zip || '';
-
-  // GHL booking widgets prefill from standard query params.
-  var qs = new URLSearchParams();
-  var name = (lead.name || '').trim();
-  if (name) {
-    var parts = name.split(/\s+/);
-    qs.set('first_name', parts.shift());
-    if (parts.length) qs.set('last_name', parts.join(' '));
-    qs.set('name', name);
-    qs.set('full_name', name); // booking form uses a single "Full Name" field
-  }
-  if (lead.email) qs.set('email', lead.email);
-  if (lead.phone) qs.set('phone', lead.phone);
-  if (lead.company) qs.set('company_name', lead.company); // GHL standard "Company Name" field
-  if (zip) qs.set('zip', zip);
-  // If "name of your business" is a GHL CUSTOM field (not the standard Company Name),
-  // swap the key above for its custom key, e.g. qs.set('<custom_field_key>', lead.company);
-
-  var src = iframe.getAttribute('src');
-  if (src && qs.toString() && src.indexOf('email=') === -1 && src.indexOf('first_name=') === -1) {
-    iframe.setAttribute('src', src + (src.indexOf('?') === -1 ? '?' : '&') + qs.toString());
-  }
-
   var note = document.getElementById('zip-note');
-  if (note && zip) note.textContent = 'Your Territory for ' + zip + ' is available — claim it before it’s gone!';
+  if (!note) return;
+  var params = new URLSearchParams(window.location.search);
+  var zip = params.get('zip') || '';
+  try { if (!zip) zip = sessionStorage.getItem('lead_zip') || ''; } catch (err) {}
+  if (zip) note.textContent = 'Your Territory for ' + zip + ' is available — claim it before it’s gone!';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
