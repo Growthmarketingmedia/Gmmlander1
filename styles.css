@@ -522,9 +522,9 @@ select.ms-input { appearance: auto; cursor: pointer; }
 }
 .blink-dot {
   display: inline-block;
-  width: 15px; height: 15px;
+  width: 21px; height: 21px;
   vertical-align: middle;
-  margin-left: 14px;
+  margin-left: 16px;
   border-radius: 50%;
   background: #2ECC40;
   box-shadow: 0 0 8px 1px rgba(46,204,64,0.9);
