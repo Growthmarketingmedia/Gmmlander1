@@ -383,6 +383,11 @@ img { max-width: 100%; display: block; }
 .modal-card input:focus { outline: none; border-color: var(--cta); }
 .modal-error { color: var(--red); font-size: 0.85rem; min-height: 18px; margin-bottom: 14px; text-align: left; }
 .modal-card .btn { width: 100%; }
+.modal-card .btn-cta {
+  font-size: 1.2rem;
+  padding: 16px 20px;
+  white-space: nowrap;
+}
 
 /* ---------- Calendar / confirmation pages ---------- */
 .page-intro { text-align: center; padding: 56px 0 24px; }
