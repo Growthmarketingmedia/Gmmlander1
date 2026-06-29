@@ -2,6 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/optin", "destination": "/" },
     { "source": "/opt-in", "destination": "/" }
   ],
   "redirects": [
