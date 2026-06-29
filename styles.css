@@ -172,6 +172,7 @@ img { max-width: 100%; display: block; }
 .video-placeholder p { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; }
 
 .hl-yellow { color: var(--yellow); }
+.hl-green { color: var(--cta); }
 
 /* Trust line + Google badge */
 .trust-line {
