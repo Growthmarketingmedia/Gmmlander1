@@ -15,7 +15,9 @@ var CONFIG = {
   // Submissions dashboard endpoint (receives every lead).
   DASHBOARD_URL:   "https://submissions-lovat.vercel.app/api/submit",
   DASHBOARD_WEBSITE_NAME: "Marketing-funnel",
-  DASHBOARD_WEBSITE_URL:  "rankangel.growthmarketingco.com"
+  DASHBOARD_WEBSITE_URL:  "rankangel.growthmarketingco.com",
+  // Google Apps Script web-app URL that appends each submission to a Google Sheet.
+  SHEET_WEBHOOK_URL: "https://script.google.com/macros/s/AKfycbxphckVCEoRS9dPaClJm0-ewXIInQTAHoUeDuPmT3CQoP6tBol-IMEH-Fs7kkr3q9Je-A/exec"
 };
 
 function currentVariant() {
@@ -230,6 +232,18 @@ function submitLead(form) {
       fetch(CONFIG.LEAD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        keepalive: true
+      }).catch(function () {});
+    } catch (err) {}
+    pending = true;
+  }
+
+  // Google Sheet (Apps Script web app). text/plain body avoids a CORS preflight.
+  if (CONFIG.SHEET_WEBHOOK_URL) {
+    try {
+      fetch(CONFIG.SHEET_WEBHOOK_URL, {
+        method: 'POST',
         body: JSON.stringify(data),
         keepalive: true
       }).catch(function () {});
