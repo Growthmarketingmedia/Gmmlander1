@@ -231,7 +231,18 @@ function sendToIntake(data) {
 }
 
 /* ---------- Submit the full lead -> webhook -> calendar ---------- */
+
+// Set once a submission starts and never cleared: the page redirects to the
+// calendar on completion, so there is no legitimate second submit. Without
+// this, a double click — or the form's submit handler and the Enter-key
+// handler both firing — would send the lead twice and trigger two paid
+// pre-qualifications for one person.
+var leadSubmitInFlight = false;
+
 function submitLead(form) {
+  if (leadSubmitInFlight) return;
+  leadSubmitInFlight = true;
+
   var data = {};
   Array.prototype.forEach.call(form.querySelectorAll('input, select'), function (f) {
     if (!f.name) return;
