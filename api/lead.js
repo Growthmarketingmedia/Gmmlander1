@@ -91,7 +91,21 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: false, reason: "not_configured" });
     }
 
-    const { first, last } = splitName(body.name);
+    // Prefer the separate fields the form now sends. splitName stays as a
+    // fallback for anyone on a cached older page still posting a single
+    // `name`, so those submissions are not left nameless during rollout.
+    let first, last;
+    if (body.first_name || body.last_name) {
+        first = sanitiseName(body.first_name);
+        last = sanitiseName(body.last_name);
+        // Digits mean junk input, same rule splitName applies.
+        if (/\d/.test(String(body.first_name || "") + String(body.last_name || ""))) {
+            first = "";
+            last = "";
+        }
+    } else {
+        ({ first, last } = splitName(body.name));
+    }
     const phone = normalisePhone(body.phone);
     const ip = clientIp(req);
 
@@ -107,7 +121,10 @@ module.exports = async function handler(req, res) {
     // A name LeadFi cannot use is still a name the CRM needs. Fall back to
     // whatever the visitor typed so the contact is never created nameless —
     // it just does not get sent for pre-qualification.
-    const rawName = String(body.name || "").trim();
+    const rawName = (
+        String(body.name || "").trim() ||
+        (String(body.first_name || "").trim() + " " + String(body.last_name || "").trim()).trim()
+    );
 
     // Field names match what the "Lead Fi" workflow's inbound webhook already
     // receives from "Send To Lead Fi" — snake_case, E.164 phone, and the

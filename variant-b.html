@@ -145,8 +145,16 @@
           </div>
           <!-- Step 5: Contact -->
           <div class="ms-step" hidden>
-            <label class="ms-label-top">Full Name <span class="req">*</span></label>
-            <input class="ms-input" name="name" type="text" placeholder="Full Name" autocomplete="name" />
+            <div class="ms-name-row">
+              <div>
+                <label class="ms-label-top">First name <span class="req">*</span></label>
+                <input class="ms-input" name="first_name" type="text" placeholder="First name" autocomplete="given-name" />
+              </div>
+              <div>
+                <label class="ms-label-top">Last name <span class="req">*</span></label>
+                <input class="ms-input" name="last_name" type="text" placeholder="Last name" autocomplete="family-name" />
+              </div>
+            </div>
             <label class="ms-label-top">Name Of Your Company <span class="req">*</span></label>
             <input class="ms-input" name="company" type="text" placeholder="e.g. Steve&rsquo;s Roofing" autocomplete="organization" />
             <label class="ms-label-top">Phone <span class="req">*</span></label>

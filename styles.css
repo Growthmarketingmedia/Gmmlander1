@@ -582,3 +582,9 @@ select.ms-input { appearance: auto; cursor: pointer; }
   .quotes-grid { grid-template-columns: 1fr; }
   .section { padding: 48px 0; }
 }
+
+/* First/Last name pair — side by side so splitting the field does not make
+   the form visibly longer. Stacks on narrow screens. */
+.ms-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ms-name-row .ms-label-top { margin-top: 0; }
+@media (max-width: 480px) { .ms-name-row { grid-template-columns: 1fr; } }
