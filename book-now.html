@@ -87,11 +87,22 @@
         var p = new URLSearchParams(location.search);
         var zip = p.get('zip') || lead.zip || '';
         var qs = new URLSearchParams();
-        var name = (lead.name || '').trim();
-        if (name) {
+        // The funnel now collects first and last name separately, so use them
+        // as entered. Splitting the joined name got two-word surnames wrong
+        // ("Anna Van Der Berg" -> last name "Van Der Berg" only by luck).
+        // Fall back to splitting for anyone arriving with older saved state.
+        var first = (lead.first_name || '').trim();
+        var last  = (lead.last_name || '').trim();
+        var name  = (lead.name || '').trim();
+        if (!first && !last && name) {
           var n = name.split(/\s+/);
-          qs.set('first_name', n.shift());
-          if (n.length) qs.set('last_name', n.join(' '));
+          first = n.shift();
+          last  = n.join(' ');
+        }
+        if (!name) name = (first + ' ' + last).trim();
+        if (first) qs.set('first_name', first);
+        if (last)  qs.set('last_name', last);
+        if (name) {
           qs.set('name', name);
           qs.set('full_name', name);
         }

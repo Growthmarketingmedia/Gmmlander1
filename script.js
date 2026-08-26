@@ -109,6 +109,10 @@ function initMultiStep() {
       if (!v) return 'Please complete this field to continue.';
       if (f.name === 'zip' && !/^\d{5}$/.test(v)) return 'Please enter a valid 5-digit zip code.';
       if (f.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return 'Please enter a valid email address.';
+      // Pre-qualification only accepts letters, spaces, apostrophes and hyphens.
+      if ((f.name === 'first_name' || f.name === 'last_name') && !/^[A-Za-zÀ-ɏ '-]+$/.test(v)) {
+        return 'Please use letters only in your name.';
+      }
       // US numbers only — pre-qualification rejects anything else.
       if (f.type === 'tel') {
         var d = v.replace(/\D/g, '');
@@ -217,6 +221,7 @@ function sendToIntake(data) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          first_name: data.first_name, last_name: data.last_name,
           name: data.name, email: data.email, phone: data.phone,
           zip: data.zip, company: data.company, service: data.service,
           jobs_per_month: data.jobs_per_month, variant: data.variant,
@@ -250,6 +255,13 @@ function submitLead(form) {
   });
   data.variant = currentVariant();
   data.source = 'lead-funnel';
+
+  // The form now collects first and last name separately, because LeadFi needs
+  // them apart and guessing the split from one field loses leads. Everything
+  // downstream — the Google Sheet's fixed columns, the submissions dashboard,
+  // and the calendar prefill on book-now — still expects a single `name`, so
+  // rebuild it here rather than changing all of them.
+  data.name = ((data.first_name || '') + ' ' + (data.last_name || '')).trim();
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'lead_submit', variant: data.variant, zip: data.zip });
