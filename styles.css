@@ -273,8 +273,10 @@ select.ms-input { appearance: auto; cursor: pointer; }
   border: 1px solid #E4E4DE;
 }
 .video-frame iframe,
-.video-frame video,
-.video-frame wistia-player { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* Embeds that size themselves with their own padding box (Vidalytics) must not
+   sit inside a second aspect ratio, or the two stack and leave dead space. */
+.video-frame--embed { aspect-ratio: auto; }
 .video-placeholder {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -296,39 +298,6 @@ select.ms-input { appearance: auto; cursor: pointer; }
 /* The form starts hidden and is revealed by the hero CTA. [hidden] alone would
    do it; this guards against a later display rule on .multistep winning out. */
 .multistep[hidden] { display: none; }
-
-/* ---------- book-now.html: pre-calendar capture card ---------- */
-.capture {
-  max-width: 560px;
-  margin: 0 auto 34px;
-  background: #fff;
-  border: 1px solid #E4E4DE;
-  border-radius: 14px;
-  box-shadow: 0 14px 40px rgba(0,0,0,0.28);
-  text-align: left;
-  padding: 26px 26px 22px;
-}
-.capture[hidden], .calendar-wrap[hidden] { display: none; }
-.capture-lead {
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 1.02rem;
-  color: var(--text-on-light);
-  margin-bottom: 16px;
-}
-/* Two-up on desktop, stacked once there is no room for it. */
-.capture-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 480px) { .capture-row { grid-template-columns: 1fr; } }
-.capture .ms-label-top {
-  display: block;
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--text-on-light);
-  margin: 14px 0 6px;
-}
-.capture-row .ms-label-top { margin-top: 0; }
-.capture-submit { width: 100%; max-width: none; margin-top: 18px; }
 
 .hl-yellow { color: var(--yellow); }
 .hl-green { color: var(--cta); }

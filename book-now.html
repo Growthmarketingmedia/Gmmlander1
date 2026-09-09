@@ -72,34 +72,9 @@
     </div>
   </section>
 
-  <!-- Minimum capture: exactly the fields LeadFi's eligibility check needs
-       (name, phone, email) plus the consent that is the basis for the credit
-       pull. Hidden when a lead was already captured upstream — variant B's
-       multi-step form still submits before redirecting here. -->
-  <form class="capture" id="capture-form" novalidate hidden>
-    <p class="capture-lead">Enter your details to see available times.</p>
-    <div class="capture-row">
-      <div>
-        <label class="ms-label-top" for="cap-first">First name <span class="req">*</span></label>
-        <input class="ms-input" id="cap-first" name="first_name" type="text" placeholder="First name" autocomplete="given-name" />
-      </div>
-      <div>
-        <label class="ms-label-top" for="cap-last">Last name <span class="req">*</span></label>
-        <input class="ms-input" id="cap-last" name="last_name" type="text" placeholder="Last name" autocomplete="family-name" />
-      </div>
-    </div>
-    <label class="ms-label-top" for="cap-phone">Phone <span class="req">*</span></label>
-    <input class="ms-input" id="cap-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
-    <label class="ms-label-top" for="cap-email">Email <span class="req">*</span></label>
-    <input class="ms-input" id="cap-email" name="email" type="email" placeholder="Email" autocomplete="email" />
-    <label class="ms-check"><input name="terms" type="checkbox" required /> <span>I agree to the terms &amp; conditions provided by the company. By providing my phone number, I agree to receive text messages from the business. I also consent to a <strong>soft credit check</strong> to confirm eligibility &mdash; this will <strong>not</strong> affect my credit score and is not visible to lenders.</span></label>
-    <div class="ms-error" aria-live="polite"></div>
-    <button type="submit" class="btn btn-lg btn-cta capture-submit">See Available Times &rarr;</button>
-  </form>
-
-  <div class="calendar-wrap" id="calendar-wrap" hidden>
-    <!-- GHL booking embed. The src is set by script.js once a lead exists, so
-         the widget renders prefilled on its first and only load. -->
+  <div class="calendar-wrap" id="calendar-wrap">
+    <!-- GHL booking embed. script.js sets the src before the widget loads so
+         it renders prefilled on first paint when a lead came from variant B. -->
     <iframe style="width:100%;border:none;overflow:hidden;"
             scrolling="no"
             id="9WIdxZKft7481V1mX5uz_1782743879826"></iframe>
