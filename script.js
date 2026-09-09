@@ -285,14 +285,18 @@ function submitLead(form) {
 }
 
 /* ---------- Fan the completed lead out to every destination ---------- */
-function dispatchLead(data) {
+function dispatchLead(data, onDone) {
   try {
     sessionStorage.setItem('lead_data', JSON.stringify(data));
     sessionStorage.setItem('lead_zip', data.zip || '');
     sessionStorage.removeItem(formStateKey());
   } catch (err) {}
 
-  function go() { window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(data.zip || ''); }
+  // Default continuation is "hand the visitor to the calendar page". book-now
+  // is already there, so it passes its own — reveal the calendar in place.
+  var go = onDone || function () {
+    window.location.href = CONFIG.CALENDAR_PAGE + '?zip=' + encodeURIComponent(data.zip || '');
+  };
 
   var pending = false;
 
@@ -370,10 +374,116 @@ function initCalendar() {
   if (zip) note.textContent = 'Your Territory for ' + zip + ' is available — claim it before it’s gone!';
 }
 
+/* ---------- book-now.html: capture the minimum, then show the calendar ----------
+   LeadFi's eligibility check needs a usable name, a US phone and an email; the
+   consent checkbox is the basis for the credit pull. Everything else it treats
+   as CRM context, so this asks for those four things and nothing more.
+   A visitor who already submitted upstream is never asked twice. */
+function initBookNowCapture() {
+  var form  = document.getElementById('capture-form');
+  var wrap  = document.getElementById('calendar-wrap');
+  if (!form || !wrap) return;                    // not the calendar page
+  var frame = document.getElementById('9WIdxZKft7481V1mX5uz_1782743879826');
+
+  function showCalendar(lead) {
+    var base = 'https://api.leadconnectorhq.com/widget/booking/9WIdxZKft7481V1mX5uz';
+    var p    = new URLSearchParams(location.search);
+    var zip  = p.get('zip') || lead.zip || '';
+    var qs   = new URLSearchParams();
+    // Names are taken as entered. Splitting a joined name got two-word
+    // surnames wrong, so that path is only a fallback for older saved state.
+    var first = (lead.first_name || '').trim();
+    var last  = (lead.last_name || '').trim();
+    var name  = (lead.name || '').trim();
+    if (!first && !last && name) {
+      var n = name.split(/\s+/);
+      first = n.shift();
+      last  = n.join(' ');
+    }
+    if (!name) name = (first + ' ' + last).trim();
+    if (first) qs.set('first_name', first);
+    if (last)  qs.set('last_name', last);
+    if (name) { qs.set('name', name); qs.set('full_name', name); }
+    if (lead.email)   qs.set('email', lead.email);
+    if (lead.phone)   qs.set('phone', lead.phone);
+    if (lead.company) qs.set('organization', lead.company);
+    if (zip)          qs.set('zip', zip);
+    if (frame) frame.src = base + (qs.toString() ? ('?' + qs.toString()) : '');
+    form.hidden = true;
+    wrap.hidden = false;
+  }
+
+  // Already captured upstream (variant B's multi-step form) — no second ask.
+  var existing = {};
+  try { existing = JSON.parse(sessionStorage.getItem('lead_data') || '{}') || {}; } catch (err) {}
+  if (existing && existing.email) { showCalendar(existing); return; }
+
+  form.hidden = false;
+
+  function validate(data, termsOk) {
+    if (!termsOk) return 'Please agree to the terms to continue.';
+    if (!data.first_name || !data.last_name) return 'Please enter your first and last name.';
+    if (!/^[A-Za-zÀ-ɏ '-]+$/.test(data.first_name + data.last_name)) {
+      return 'Please use letters only in your name.';
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) return 'Please enter a valid email address.';
+    var d = (data.phone || '').replace(/\D/g, '');
+    if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+    if (d.length !== 10) return 'Please enter a valid 10-digit US phone number.';
+    return '';
+  }
+
+  var inFlight = false;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (inFlight) return;                        // one paid pre-qualification per person
+
+    var data = {};
+    form.querySelectorAll('input').forEach(function (f) {
+      if (!f.name || f.type === 'checkbox') return;
+      data[f.name] = (f.value || '').trim();
+    });
+    var termsOk = !!form.querySelector('input[name=terms]').checked;
+    var errBox  = form.querySelector('.ms-error');
+    var msg     = validate(data, termsOk);
+    if (msg) { if (errBox) errBox.textContent = msg; return; }
+    if (errBox) errBox.textContent = '';
+
+    inFlight = true;
+    data.terms   = true;
+    data.name    = (data.first_name + ' ' + data.last_name).trim();
+    data.source  = 'lead-funnel';
+    try { data.variant = sessionStorage.getItem('lead_variant') || ''; } catch (err) { data.variant = ''; }
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'lead_submit', variant: data.variant, zip: data.zip || '' });
+
+    var btn = form.querySelector('.capture-submit');
+    var label = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+
+    // Fails soft exactly like the multi-step path: the calendar is shown
+    // whatever LeadFi or the CRM say, so a booking is never blocked by them.
+    sendToIntake(data).then(function (r) {
+      if (r) {
+        data.crm_status = r.ok ? 'sent' : (r.reason || 'unknown');
+        data.prequalify = r.prequalify || '';
+        data.prequalify_blocked_by = r.blockedBy || '';
+      }
+      if (btn) { btn.disabled = false; btn.textContent = label; }
+      dispatchLead(data, function () { showCalendar(data); });
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'landing_view', variant: currentVariant() });
+  // book-now has no data-variant of its own; remember it so the lead captured
+  // there is still attributed to the page the visitor actually landed on.
+  try { if (currentVariant()) sessionStorage.setItem('lead_variant', currentVariant()); } catch (err) {}
   initMultiStep();
   initScrollButtons();
   initCalendar();
+  initBookNowCapture();
 });

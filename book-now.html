@@ -72,48 +72,37 @@
     </div>
   </section>
 
-  <div class="calendar-wrap">
-    <!-- GHL booking embed -->
+  <!-- Minimum capture: exactly the fields LeadFi's eligibility check needs
+       (name, phone, email) plus the consent that is the basis for the credit
+       pull. Hidden when a lead was already captured upstream — variant B's
+       multi-step form still submits before redirecting here. -->
+  <form class="capture" id="capture-form" novalidate hidden>
+    <p class="capture-lead">Enter your details to see available times.</p>
+    <div class="capture-row">
+      <div>
+        <label class="ms-label-top" for="cap-first">First name <span class="req">*</span></label>
+        <input class="ms-input" id="cap-first" name="first_name" type="text" placeholder="First name" autocomplete="given-name" />
+      </div>
+      <div>
+        <label class="ms-label-top" for="cap-last">Last name <span class="req">*</span></label>
+        <input class="ms-input" id="cap-last" name="last_name" type="text" placeholder="Last name" autocomplete="family-name" />
+      </div>
+    </div>
+    <label class="ms-label-top" for="cap-phone">Phone <span class="req">*</span></label>
+    <input class="ms-input" id="cap-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+    <label class="ms-label-top" for="cap-email">Email <span class="req">*</span></label>
+    <input class="ms-input" id="cap-email" name="email" type="email" placeholder="Email" autocomplete="email" />
+    <label class="ms-check"><input name="terms" type="checkbox" required /> <span>I agree to the terms &amp; conditions provided by the company. By providing my phone number, I agree to receive text messages from the business. I also consent to a <strong>soft credit check</strong> to confirm eligibility &mdash; this will <strong>not</strong> affect my credit score and is not visible to lenders.</span></label>
+    <div class="ms-error" aria-live="polite"></div>
+    <button type="submit" class="btn btn-lg btn-cta capture-submit">See Available Times &rarr;</button>
+  </form>
+
+  <div class="calendar-wrap" id="calendar-wrap" hidden>
+    <!-- GHL booking embed. The src is set by script.js once a lead exists, so
+         the widget renders prefilled on its first and only load. -->
     <iframe style="width:100%;border:none;overflow:hidden;"
             scrolling="no"
             id="9WIdxZKft7481V1mX5uz_1782743879826"></iframe>
-    <script>
-      // Build the booking URL WITH the lead's details BEFORE the GHL widget loads,
-      // so name / company / phone / email / zip prefill on first render (no reload).
-      (function () {
-        var base = 'https://api.leadconnectorhq.com/widget/booking/9WIdxZKft7481V1mX5uz';
-        var lead = {};
-        try { lead = JSON.parse(sessionStorage.getItem('lead_data') || '{}') || {}; } catch (e) {}
-        var p = new URLSearchParams(location.search);
-        var zip = p.get('zip') || lead.zip || '';
-        var qs = new URLSearchParams();
-        // The funnel now collects first and last name separately, so use them
-        // as entered. Splitting the joined name got two-word surnames wrong
-        // ("Anna Van Der Berg" -> last name "Van Der Berg" only by luck).
-        // Fall back to splitting for anyone arriving with older saved state.
-        var first = (lead.first_name || '').trim();
-        var last  = (lead.last_name || '').trim();
-        var name  = (lead.name || '').trim();
-        if (!first && !last && name) {
-          var n = name.split(/\s+/);
-          first = n.shift();
-          last  = n.join(' ');
-        }
-        if (!name) name = (first + ' ' + last).trim();
-        if (first) qs.set('first_name', first);
-        if (last)  qs.set('last_name', last);
-        if (name) {
-          qs.set('name', name);
-          qs.set('full_name', name);
-        }
-        if (lead.email)   qs.set('email', lead.email);
-        if (lead.phone)   qs.set('phone', lead.phone);
-        if (lead.company) qs.set('organization', lead.company); // booking form field name="organization"
-        if (zip)          qs.set('zip', zip);
-        document.getElementById('9WIdxZKft7481V1mX5uz_1782743879826').src =
-          base + (qs.toString() ? ('?' + qs.toString()) : '');
-      })();
-    </script>
     <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
   </div>
 
