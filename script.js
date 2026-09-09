@@ -374,42 +374,6 @@ function initCalendar() {
   if (zip) note.textContent = 'Your Territory for ' + zip + ' is available — claim it before it’s gone!';
 }
 
-/* ---------- book-now.html: render the booking calendar ----------
-   The opt-in CTA sends people straight here, so nothing is asked before the
-   calendar. A lead that came from variant B's form is still in sessionStorage,
-   so the widget is prefilled when there is something to prefill it with. */
-function initCalendarEmbed() {
-  var frame = document.getElementById('9WIdxZKft7481V1mX5uz_1782743879826');
-  if (!frame) return;                            // not the calendar page
-
-  var lead = {};
-  try { lead = JSON.parse(sessionStorage.getItem('lead_data') || '{}') || {}; } catch (err) {}
-
-  var base = 'https://api.leadconnectorhq.com/widget/booking/9WIdxZKft7481V1mX5uz';
-  var p    = new URLSearchParams(location.search);
-  var zip  = p.get('zip') || lead.zip || '';
-  var qs   = new URLSearchParams();
-  // Names are taken as entered. Splitting a joined name got two-word surnames
-  // wrong, so that path is only a fallback for older saved state.
-  var first = (lead.first_name || '').trim();
-  var last  = (lead.last_name || '').trim();
-  var name  = (lead.name || '').trim();
-  if (!first && !last && name) {
-    var n = name.split(/\s+/);
-    first = n.shift();
-    last  = n.join(' ');
-  }
-  if (!name) name = (first + ' ' + last).trim();
-  if (first) qs.set('first_name', first);
-  if (last)  qs.set('last_name', last);
-  if (name) { qs.set('name', name); qs.set('full_name', name); }
-  if (lead.email)   qs.set('email', lead.email);
-  if (lead.phone)   qs.set('phone', lead.phone);
-  if (lead.company) qs.set('organization', lead.company);
-  if (zip)          qs.set('zip', zip);
-  frame.src = base + (qs.toString() ? ('?' + qs.toString()) : '');
-}
-
 document.addEventListener('DOMContentLoaded', function () {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'landing_view', variant: currentVariant() });
@@ -419,5 +383,4 @@ document.addEventListener('DOMContentLoaded', function () {
   initMultiStep();
   initScrollButtons();
   initCalendar();
-  initCalendarEmbed();
 });
