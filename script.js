@@ -348,6 +348,9 @@ function initScrollButtons() {
       e.preventDefault();
       var f = document.querySelector('.multistep');
       if (!f) return;
+      // The form starts hidden behind the hero video CTA; reveal it before scrolling
+      // so the scroll target has a real height to centre on.
+      f.hidden = false;
       f.scrollIntoView({ behavior: 'smooth', block: 'center' });
       var inp = f.querySelector('input, select');
       if (inp) setTimeout(function () { inp.focus(); }, 450);

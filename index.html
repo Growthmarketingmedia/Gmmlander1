@@ -13,6 +13,11 @@
 
   <link rel="stylesheet" href="styles.css" />
 
+  <!-- ============ Wistia VSL player ============ -->
+  <script src="https://fast.wistia.com/player.js" async></script>
+  <script src="https://fast.wistia.com/embed/tet7ooa6ew.js" async type="module"></script>
+  <style>wistia-player[media-id='tet7ooa6ew']:not(:defined) { background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/tet7ooa6ew/swatch'); display: block; filter: blur(5px); padding-top: 56.25%; }</style>
+
   <!-- ============ Google Tag Manager (placeholder — replace GTM-XXXXXXX) ============ -->
   <script>
     // (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-XXXXXXX');
@@ -64,7 +69,13 @@
     <div class="container">
       <h1>Give Us <u class="hl-green">7 Days</u>, And We&rsquo;ll Do <u>12 Months of SEO</u> For Your Home Service Business.</h1>
       <p class="pill-subhead">If We Don&rsquo;t Deliver &mdash; You Don&rsquo;t Pay!<sup>*</sup></p>
-      <form class="multistep" novalidate>
+      <div class="video-slot">
+        <div class="video-frame">
+          <wistia-player media-id="tet7ooa6ew" aspect="1.7777777777777777"></wistia-player>
+        </div>
+      </div>
+      <button type="button" class="btn btn-lg btn-cta video-cta" data-scroll-to-form>Book a Demo &rarr;</button>
+      <form class="multistep" novalidate hidden>
         <div class="ms-bar"><i></i></div>
         <div class="ms-body">
           <!-- Step 1: Zip -->

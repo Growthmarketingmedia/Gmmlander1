@@ -273,7 +273,8 @@ select.ms-input { appearance: auto; cursor: pointer; }
   border: 1px solid #E4E4DE;
 }
 .video-frame iframe,
-.video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-frame video,
+.video-frame wistia-player { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .video-placeholder {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -289,6 +290,12 @@ select.ms-input { appearance: auto; cursor: pointer; }
 }
 .video-placeholder .vp-play svg { width: 74px; height: 74px; }
 .video-placeholder p { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* CTA under the hero video — reveals the multi-step form */
+.video-cta { margin-bottom: 28px; }
+/* The form starts hidden and is revealed by the hero CTA. [hidden] alone would
+   do it; this guards against a later display rule on .multistep winning out. */
+.multistep[hidden] { display: none; }
 
 .hl-yellow { color: var(--yellow); }
 .hl-green { color: var(--cta); }
