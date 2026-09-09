@@ -362,18 +362,6 @@ function initScrollButtons() {
   });
 }
 
-/* ---------- Calendar page: show the territory message ----------
-   The GHL booking iframe is prefilled inline on calendar.html (before the widget
-   loads) so name/company/phone/email/zip populate on first render. */
-function initCalendar() {
-  var note = document.getElementById('zip-note');
-  if (!note) return;
-  var params = new URLSearchParams(window.location.search);
-  var zip = params.get('zip') || '';
-  try { if (!zip) zip = sessionStorage.getItem('lead_zip') || ''; } catch (err) {}
-  if (zip) note.textContent = 'Your Territory for ' + zip + ' is available — claim it before it’s gone!';
-}
-
 document.addEventListener('DOMContentLoaded', function () {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: 'landing_view', variant: currentVariant() });
@@ -382,5 +370,4 @@ document.addEventListener('DOMContentLoaded', function () {
   try { if (currentVariant()) sessionStorage.setItem('lead_variant', currentVariant()); } catch (err) {}
   initMultiStep();
   initScrollButtons();
-  initCalendar();
 });
